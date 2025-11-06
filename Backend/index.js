@@ -16,10 +16,11 @@ const app  = express();
 app.use(express.json());
 
 app.use(cors({
-  origin: "http://localhost:5173", // frontend URL
-  credentials: true
+  origin: "http://localhost:5173",
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
 }));
-
 // connect to MongoDB
 mongoose.connect(process.env.MONGO_URI).then(() => console.log('MongoDB connected')).catch(err => console.log("Error connecting to MongoDB:", err.message));
 

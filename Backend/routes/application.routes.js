@@ -7,7 +7,6 @@ import { verifyFreelancer, verifyClient } from "../middlewares/verifyRole.js";
 const router = express.Router();
 
 router.post("/apply", verifyToken, verifyFreelancer, applyToProject);
-router.get("/my", verifyToken, verifyFreelancer, getMyApplications);
 router.get("/:projectId", verifyToken, verifyClient, getProjectApplications);
 router.patch("/:id/status", verifyToken, verifyClient, updateApplicationStatus);
 router.put("/:id/accept", verifyToken, verifyClient, acceptApplication);

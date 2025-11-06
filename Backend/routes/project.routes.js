@@ -6,10 +6,10 @@ import { verifyClient, verifyFreelancer } from '../middlewares/verifyRole.js';
 
 const router = express.Router();
 
-router.post('/create', verifyToken, createProject);
+router.post('/create', verifyToken, verifyClient, createProject);
 router.get('/', getAllProjects);
 router.get('/:id', getProjectById);
-router.put('/:id', verifyToken, updateProject);
-router.delete('/:id', verifyToken, deleteProject);
+router.put('/:id', verifyToken, verifyClient, updateProject);
+router.delete('/:id', verifyToken, verifyClient, deleteProject);
 
 export default router;
