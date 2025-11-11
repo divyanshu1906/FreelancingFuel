@@ -4,7 +4,7 @@ import FreelancerDashboard from "@/pages/freelancer/FreelancerDashboard";
 import CreateProject from "@/pages/clients/CreateProject";
 import UpdateProject from "@/pages/clients/UpdateProject";
 import ApplyApplication from "@/pages/freelancer/ApplyApplication";
-import ChatRoom from "@/pages/clients/ChatRoom";
+import ChatRoom from "@/components/chat/ChatRoom";
 import ClientChats from "@/pages/clients/ClientChats";
 import FreelancerChats from "@/pages/freelancer/FreelancerChats";
 

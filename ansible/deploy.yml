@@ -1,0 +1,95 @@
+---
+- name: Deploy FreelancingFuel app with Docker Compose
+  hosts: appservers
+  become: true
+  vars:
+    repo_url: "https://github.com/divyanshu1906/FreelancingFuel.git"
+    project_dir: "/opt/freelancingfuel"
+    compose_file: "{{ project_dir }}/docker-compose.yml"
+    docker_packages:
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+  tasks:
+    - name: Ensure apt cache is up to date
+      apt:
+        update_cache: yes
+      when: ansible_os_family == 'Debian'
+
+    - name: Install prerequisites for Docker (Debian/Ubuntu)
+      apt:
+        name: "{{ docker_packages }}"
+        state: present
+      when: ansible_os_family == 'Debian'
+
+    - name: Add Docker official GPG key
+      ansible.builtin.apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+      when: ansible_os_family == 'Debian'
+
+    - name: Add Docker apt repository
+      ansible.builtin.apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_lsb.codename }} stable"
+        state: present
+      when: ansible_os_family == 'Debian'
+
+    - name: Install Docker Engine and Compose plugin
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-compose-plugin
+        state: present
+        update_cache: yes
+      when: ansible_os_family == 'Debian'
+
+    - name: Ensure docker service is running
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Install git
+      apt:
+        name: git
+        state: present
+      when: ansible_os_family == 'Debian'
+
+    - name: Create project directory
+      file:
+        path: "{{ project_dir }}"
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: Clone or update repository
+      git:
+        repo: "{{ repo_url }}"
+        dest: "{{ project_dir }}"
+        version: HEAD
+        force: yes
+      register: git_result
+
+    - name: Pull backend and client images (if using remote registry)
+      command: docker compose -f {{ compose_file }} pull
+      args:
+        warn: false
+      when: git_result.changed or true
+      register: pull_result
+      failed_when: false
+
+    - name: Start/Restart stack with docker compose
+      command: docker compose -f {{ compose_file }} up -d --remove-orphans
+      args:
+        chdir: "{{ project_dir }}"
+      register: compose_up
+
+    - name: Show compose output
+      debug:
+        var: compose_up.stdout_lines
+
+  handlers: []
