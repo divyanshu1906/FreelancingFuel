@@ -1,5 +1,6 @@
 import Application from '../models/application.model.js';
 import Project from '../models/project.model.js';
+import Chat from "../models/chat.model.js";
 
 export const applyToProject = async (req, res) => {
   try {
@@ -108,10 +109,28 @@ export const acceptApplication = async (req, res) => {
     project.assignedTo = application.freelancerId;
     await project.save();
 
+     const existingChat = await Chat.findOne({
+      projectId: project._id,
+      clientId: project.clientId || project.createdBy, // adjust based on your schema
+      freelancerId: application.freelancerId,
+    });
+
+    let chat;
+    if (!existingChat) {
+      chat = await Chat.create({
+        projectId: project._id,
+        clientId: project.clientId || project.createdBy,
+        freelancerId: application.freelancerId,
+      });
+    } else {
+      chat = existingChat;
+    }
+
     res.json({
       message: "Freelancer successfully assigned to the project!",
       project,
-      application
+      application,
+      chat
     });
   } catch (error) {
     console.error("Error accepting application:", error);

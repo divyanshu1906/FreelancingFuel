@@ -2,29 +2,27 @@ import Application from "../models/application.model.js";
 import Project from "../models/project.model.js";
 
 export const getFreelancerSummary = async (req, res) => {
-    try {
-        const freelancerId = req.user._id;
+  try {
+    const freelancerId = req.user._id;
 
-        //Application stats
-        const totalApplications = await Application.countDocuments({ freelancerId });
-        const acceptedApplications = await Application.countDocuments({ freelancerId, status: "accepted" });
-        const rejectedApplications = await Application.countDocuments({ freelancerId, status: "rejected" });
-        const pendingApplications = await Application.countDocuments({ freelancerId, status: "pending" });
+    const totalApplications = await Application.countDocuments({ freelancerId });
+    const acceptedApplications = await Application.countDocuments({ freelancerId, status: "accepted" });
+    const rejectedApplications = await Application.countDocuments({ freelancerId, status: "rejected" });
+    const pendingApplications = await Application.countDocuments({ freelancerId, status: "pending" });
 
-        // Project assigned to the freelancer
-        const assignedProjects = await Project.countDocuments({ assignedTo: freelancerId });
+    const assignedProjects = await Project.countDocuments({ assignedTo: freelancerId });
 
-        res.status(200).json({
-            totalApplications,
-            acceptedApplications,
-            rejectedApplications,
-            pendingApplications,
-            assignedProjects
-        });
-    } catch (error) {
-        console.error("Error fetching freelancer summary:", error);
-        res.status(500).json({ message: "Internal server error" });
-    }
+    res.status(200).json({
+      totalApplications,
+      acceptedApplications,
+      rejectedApplications,
+      pendingApplications,
+      assignedProjects
+    });
+  } catch (error) {
+    console.error("Error fetching freelancer summary:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 };
 
 export const getAssignedProjects = async (req, res) => {

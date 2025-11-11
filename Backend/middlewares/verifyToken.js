@@ -10,7 +10,8 @@ export const verifyToken = async (req, res, next) => {
     }
 
     const token = authHeader.replace("Bearer ", "");
-
+    console.log("🔍 Incoming Token:", token.slice(0, 30) + "...");
+    
     const blacklisted = await Blacklist.findOne({ token });
     if (blacklisted) return res.status(401).json({ message: "Token expired or invalid" });
 

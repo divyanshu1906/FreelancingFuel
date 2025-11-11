@@ -1,4 +1,5 @@
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
+import { useNavigate } from "react-router-dom";
 import ProjectCard from "@/components/projects/ProjectCard";
 import {
   getFreelancerSummary,
@@ -7,7 +8,10 @@ import {
 } from "@/services/freelancerService";
 import { getOpenProjects } from "@/services/projectService";
 
+console.log("Loaded ProjectCard component:", ProjectCard); 
+
 const FreelancerDashboard = () => {
+  const navigate = useNavigate();
   const fetchData = {
     home: async () => await getFreelancerSummary(),
     myProjects: async () => await getFreelancerProjects(),
@@ -112,7 +116,22 @@ const FreelancerDashboard = () => {
     },
   };
 
-  return <DashboardLayout tabs={tabs} fetchData={fetchData} />;
+  return (
+    <div className="relative">
+      <DashboardLayout tabs={tabs} fetchData={fetchData} />
+
+      {/* Chats Button - fixed */}
+      <button
+        onClick={() => navigate("/freelancer/chats")}
+        className="fixed bottom-6 right-6 z-50 bg-indigo-600 text-white px-5 py-3 rounded-full shadow-lg hover:bg-indigo-700 transition-colors flex items-center gap-2 font-medium"
+      >
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h6m-6 4h10M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        Chats
+      </button>
+    </div>
+  );
 };
 
 const Card = ({ title, value }) => (

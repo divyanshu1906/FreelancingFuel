@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { acceptApplication, rejectApplication } from "@/services/applicationService";
 
 const ApplicationList = ({ applications }) => {
   const [processingId, setProcessingId] = useState(null);
   const [updatedApplications, setUpdatedApplications] = useState(applications);
+  const navigate = useNavigate();
 
   useEffect(() => {
     setUpdatedApplications(applications);
@@ -22,6 +24,39 @@ const ApplicationList = ({ applications }) => {
         )
       );
       alert(result.message || "Application accepted successfully!");
+
+      // After accepting, send an initial message from the client and redirect to chat room
+      try {
+        const projectId = result.project?._id || result.projectId || result.chat?.projectId;
+        // prepare token (support role-specific keys)
+        const token =
+          localStorage.getItem("client_token") ||
+          localStorage.getItem("freelancer_token") ||
+          localStorage.getItem("token");
+
+        if (projectId && token) {
+          const initialMessage = "Hello — I've accepted your application. Let's discuss the project details here.";
+          const sendRes = await fetch(`http://127.0.0.1:3000/api/chat/project/${projectId}/send`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ message: initialMessage }),
+          });
+
+          // ignore send failure but log it
+          if (!sendRes.ok) {
+            const text = await sendRes.text();
+            console.error("Initial chat send failed:", sendRes.status, text);
+          }
+
+          // navigate to chat room (by project)
+          navigate(`/chat/${projectId}`);
+        }
+      } catch (err) {
+        console.error("Error sending initial chat message:", err);
+      }
     } catch (error) {
       alert(error.message || "Failed to accept application");
     } finally {
@@ -111,6 +146,19 @@ const ApplicationList = ({ applications }) => {
                     className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:bg-gray-400 font-medium"
                   >
                     {processingId === a._id ? "Processing..." : "Reject"}
+                  </button>
+                </div>
+              )}
+              {a.status === "accepted" && (
+                <div className="flex gap-2 mt-3">
+                  <button
+                    onClick={() => {
+                      const projectId = a.projectId?._id || a.projectId;
+                      if (projectId) navigate(`/chat/${projectId}`);
+                    }}
+                    className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 font-medium"
+                  >
+                    Chat with Freelancer
                   </button>
                 </div>
               )}

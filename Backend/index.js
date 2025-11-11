@@ -8,6 +8,7 @@ import projectRoutes from './routes/project.routes.js';
 import applicationRoutes from './routes/application.routes.js';
 import clientRoutes from "./routes/client.routes.js";
 import freelancerRoutes from "./routes/freelancer.routes.js";
+import chatRoutes from "./routes/chat.routes.js";
 
 dotenv.config();
 const PORT = process.env.PORT || 3000;
@@ -30,6 +31,7 @@ app.use("/api/projects", projectRoutes);
 app.use("/api/applications", applicationRoutes);
 app.use("/api/freelancer", freelancerRoutes);
 app.use("/api/client", clientRoutes);
+app.use("/api/chat", chatRoutes);
 
 
 app.listen(PORT, () => {

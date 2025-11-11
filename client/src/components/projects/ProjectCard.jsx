@@ -38,11 +38,23 @@ const ProjectCard = ({
     }
   };
 
+  // 🟢 NEW: Chat with Freelancer button handler
+  const handleChat = () => {
+    if (!project.status?.toLowerCase().includes("progress")) {
+      alert("Chat is available only for in-progress projects.");
+      return;
+    }
+    // Navigate to the shared chat route (works for both client and freelancer)
+    navigate(`/chat/${project._id}`);
+  };
+
   return (
     <div className="bg-white shadow-md p-6 rounded-lg hover:shadow-lg transition-shadow">
       <div className="flex justify-between items-start mb-3">
         <h3 className="text-xl font-semibold text-gray-800">{project.title}</h3>
-        <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(project.status)}`}>
+        <span
+          className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(project.status)}`}
+        >
           {project.status}
         </span>
       </div>
@@ -79,7 +91,8 @@ const ProjectCard = ({
       {project.createdBy && (
         <div className="pt-3 border-t border-gray-200 mb-3">
           <p className="text-sm text-gray-600">
-            <span className="font-medium">Posted by:</span> {project.createdBy.name || project.createdBy.email}
+            <span className="font-medium">Posted by:</span>{" "}
+            {project.createdBy.name || project.createdBy.email}
           </p>
         </div>
       )}
@@ -88,6 +101,7 @@ const ProjectCard = ({
         Posted: {new Date(project.createdAt).toLocaleDateString()}
       </div>
 
+      {/* Freelancer Apply Button */}
       {showApplyButton && project.status === "open" && (
         <button
           onClick={() => navigate(`/freelancer/apply/${project._id}`)}
@@ -97,6 +111,7 @@ const ProjectCard = ({
         </button>
       )}
 
+      {/* Client Update/Delete Buttons */}
       {showEditButtons && (
         <div className="flex gap-2 mt-4">
           <button
@@ -113,9 +128,20 @@ const ProjectCard = ({
           </button>
         </div>
       )}
+
+      {/* 🟢 Chat Button (Visible only when project is in-progress) */}
+      {project.status?.toLowerCase().includes("progress") && (
+        <div className="mt-3">
+          <button
+            onClick={handleChat}
+            className="w-full px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors font-medium text-sm"
+          >
+            Chat with Freelancer
+          </button>
+        </div>
+      )}
     </div>
   );
 };
 
 export default ProjectCard;
-

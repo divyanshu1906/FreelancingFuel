@@ -1,20 +1,32 @@
-// src/components/ProtectedRoute.jsx
 import { Navigate } from "react-router-dom";
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
-  const token = localStorage.getItem("token");
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  // 🟢 Get the user info from either role
+  const clientUser = JSON.parse(localStorage.getItem("client_user") || "null");
+  const freelancerUser = JSON.parse(localStorage.getItem("freelancer_user") || "null");
 
-  // no token = not logged in
-  if (!token) {
+  // 🟢 Determine which user is logged in
+  const user = clientUser || freelancerUser;
+
+  // 🟢 Get the corresponding token
+  const token =
+    user?.role === "client"
+      ? localStorage.getItem("client_token")
+      : user?.role === "freelancer"
+      ? localStorage.getItem("freelancer_token")
+      : null;
+
+  // 🚫 No user or token → redirect to login
+  if (!user || !token) {
     return <Navigate to="/login" replace />;
   }
 
-  // role not allowed = redirect to respective dashboard
+  // 🚫 Wrong role → redirect to correct dashboard
   if (allowedRoles && !allowedRoles.includes(user.role)) {
     return <Navigate to={`/${user.role}/dashboard`} replace />;
   }
 
+  // ✅ All good → render the protected page
   return children;
 };
 

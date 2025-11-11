@@ -107,6 +107,16 @@ const ClientDashboard = () => {
         </svg>
         Create Project
       </button>
+      {/* Chats Button - Fixed position (left of create) */}
+      <button
+        onClick={() => navigate("/client/chats")}
+        className="fixed bottom-6 right-28 z-50 bg-indigo-600 text-white px-5 py-3 rounded-full shadow-lg hover:bg-indigo-700 transition-colors flex items-center gap-2 font-medium"
+      >
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h6m-6 4h10M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        Chats
+      </button>
       <DashboardLayout tabs={tabs} fetchData={fetchData} />
     </div>
   );

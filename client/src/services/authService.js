@@ -40,3 +40,6 @@ export const loginUser = async (userData) => {
     return { success: false, message: error.message };
   }
 };
+
+export const getTokenForRole = (role) =>
+  localStorage.getItem(`${role}_token`) || localStorage.getItem("token");

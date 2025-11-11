@@ -12,26 +12,39 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const res = await loginUser(formData);
-    if (res.token) {
-      localStorage.setItem("token", res.token);
-      localStorage.setItem("user", JSON.stringify(res.user));
 
-      if (res.user.role === "freelancer") {
-        navigate("/freelancer/dashboard");
-      } else if (res.user.role === "client") {
-        navigate("/client/dashboard");
+    try {
+      const res = await loginUser(formData);
+
+      if (res.token && res.user) {
+        // ✅ define role from response first
+        const role = res.user.role; // "client" or "freelancer"
+
+        // ✅ store role-specific token and user
+        localStorage.setItem(`${role}_token`, res.token);
+        localStorage.setItem(`${role}_user`, JSON.stringify(res.user));
+
+        // ❌ remove old generic keys to avoid confusion
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+
+        // ✅ navigate to correct dashboard
+        navigate(`/${role}/dashboard`);
       } else {
-        alert("Unknown role, cannot redirect");
+        alert(res.message || "Invalid credentials");
       }
-    } else {
-      alert(res.message || "Invalid credentials");
+    } catch (error) {
+      console.error("Login error:", error);
+      alert("Something went wrong during login");
     }
   };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <form onSubmit={handleSubmit} className="p-6 bg-white shadow-lg rounded-xl">
+      <form
+        onSubmit={handleSubmit}
+        className="p-6 bg-white shadow-lg rounded-xl"
+      >
         <h2 className="text-xl font-semibold mb-4">Login</h2>
 
         <input
@@ -51,7 +64,7 @@ const Login = () => {
 
         <button
           type="submit"
-          className="bg-green-600 text-white px-4 py-2 rounded"
+          className="bg-green-600 text-white px-4 py-2 rounded w-full"
         >
           Login
         </button>
