@@ -64,25 +64,30 @@ const ApplyApplication = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
+    <div className="min-h-screen bg-ff-bg py-10 px-4">
       <div className="max-w-4xl mx-auto">
-        <div className="bg-white shadow-md rounded-lg p-6 mb-6">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-3xl font-bold text-gray-800">Apply to Project</h1>
-            <button
-              onClick={() => navigate("/freelancer/dashboard")}
-              className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
-            >
-              Back to Dashboard
-            </button>
+        <div className="bg-white/80 backdrop-blur-sm shadow-lg rounded-lg p-6 mb-6 border border-gray-100">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
+            <div>
+              <h1 className="text-3xl font-bold text-ff-accent-dark">Apply to Project</h1>
+              <p className="text-sm text-ff-accent-dark/70 mt-1">Send a tailored proposal and bid to win this project.</p>
+            </div>
+            <div>
+              <button
+                onClick={() => navigate("/freelancer/dashboard")}
+                className="px-4 py-2 bg-white text-ff-accent-dark border border-gray-200 rounded hover:shadow transition"
+              >
+                Back to Dashboard
+              </button>
+            </div>
           </div>
 
           {/* Project Details */}
           {project && (
-            <div className="mb-6 p-4 bg-blue-50 rounded-lg">
-              <h2 className="text-xl font-semibold mb-2">{project.title}</h2>
-              <p className="text-gray-700 mb-2">{project.description}</p>
-              <div className="flex gap-4 text-sm">
+            <div className="mb-6 p-4 bg-ff-bg border border-gray-100 rounded-lg">
+              <h2 className="text-xl font-semibold mb-2 text-ff-accent-dark">{project.title}</h2>
+              <p className="text-ff-accent-dark mb-2">{project.description}</p>
+              <div className="flex flex-wrap gap-4 text-sm text-ff-accent-dark">
                 <span className="font-semibold">Budget: ${project.budget}</span>
                 {project.deadline && (
                   <span className="font-semibold">
@@ -91,11 +96,13 @@ const ApplyApplication = () => {
                 )}
               </div>
               {project.skillsRequired && project.skillsRequired.length > 0 && (
-                <div className="mt-2">
-                  <span className="text-sm font-semibold">Skills Required: </span>
-                  <span className="text-sm">
-                    {project.skillsRequired.join(", ")}
-                  </span>
+                <div className="mt-3">
+                  <p className="text-sm font-semibold text-ff-accent-dark mb-2">Skills Required</p>
+                  <div className="flex flex-wrap gap-2">
+                    {project.skillsRequired.map((s, i) => (
+                      <span key={i} className="px-2 py-1 bg-ff-bg border border-ff-accent/10 text-ff-accent-dark rounded-md text-sm">{s}</span>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
@@ -103,20 +110,22 @@ const ApplyApplication = () => {
 
           {/* Messages */}
           {error && (
-            <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-              {error}
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded">
+              <strong className="block font-medium">Error</strong>
+              <div className="mt-1 text-sm">{error}</div>
             </div>
           )}
           {success && (
-            <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
-              {success}
+            <div className="mb-4 p-3 bg-ff-accent/10 border border-ff-accent/20 text-ff-accent-dark rounded">
+              <strong className="block font-medium">Success</strong>
+              <div className="mt-1 text-sm">{success}</div>
             </div>
           )}
 
           {/* Application Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-ff-accent-dark mb-1">
                 Proposal Text <span className="text-red-500">*</span>
               </label>
               <textarea
@@ -126,12 +135,13 @@ const ApplyApplication = () => {
                 required
                 rows="6"
                 placeholder="Write your proposal explaining why you're the right fit for this project..."
-                className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-ff-accent"
+                aria-label="Proposal text"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-ff-accent-dark mb-1">
                 Your Bid Amount ($) <span className="text-red-500">*</span>
               </label>
               <input
@@ -143,10 +153,11 @@ const ApplyApplication = () => {
                 min="0"
                 step="0.01"
                 placeholder="Enter your bid amount"
-                className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-ff-accent"
+                aria-label="Bid amount"
               />
               {project && (
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-ff-accent-dark/70 mt-1">
                   Project budget: ${project.budget}
                 </p>
               )}
@@ -156,15 +167,24 @@ const ApplyApplication = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-1 px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400 font-medium"
+                className="flex-1 px-6 py-3 bg-ff-accent text-white rounded shadow hover:opacity-95 disabled:bg-gray-300 font-medium transition-transform hover:-translate-y-0.5"
+                aria-label="Submit application"
               >
-                {loading ? "Submitting..." : "Submit Application"}
+                {loading ? (
+                  <span className="inline-flex items-center gap-2">
+                    <span className="animate-spin rounded-full h-4 w-4 border-2 border-white/40 border-t-white" />
+                    Submitting...
+                  </span>
+                ) : (
+                  "Submit Application"
+                )}
               </button>
 
               <button
                 type="button"
                 onClick={() => navigate("/freelancer/dashboard")}
-                className="px-6 py-3 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 font-medium"
+                className="px-6 py-3 bg-white border border-gray-200 text-ff-accent-dark rounded hover:shadow font-medium"
+                aria-label="Cancel"
               >
                 Cancel
               </button>

@@ -92,85 +92,81 @@ const ApplicationList = ({ applications }) => {
       {applicationsToShow?.length ? (
         <div className="space-y-4">
           {applicationsToShow.map((a) => (
-            <div key={a._id} className="bg-white p-4 rounded shadow">
-              <div className="flex justify-between items-start mb-2">
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold">{a.projectId?.title || "N/A"}</h3>
-                  <p className="text-sm text-gray-600">
-                    From: {a.freelancerId?.name || "N/A"} ({a.freelancerId?.email || "N/A"})
-                  </p>
+            <article key={a._id} className="bg-white border border-gray-100 rounded-lg p-4 shadow-sm hover:shadow-md transition">
+              <div className="flex justify-between items-start mb-3 gap-4">
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-lg font-semibold text-ff-accent-dark truncate">{a.projectId?.title || "N/A"}</h3>
+                  <p className="text-sm text-ff-accent-dark/70 mt-1">From <span className="font-medium text-ff-accent-dark">{a.freelancerId?.name || "N/A"}</span> <span className="text-xs text-gray-400">({a.freelancerId?.email || "N/A"})</span></p>
                 </div>
-                <span
-                  className={`px-3 py-1 rounded text-sm font-medium ${
+                <div className="flex flex-col items-end gap-2">
+                  <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${
                     a.status === "accepted"
-                      ? "bg-green-100 text-green-800"
+                      ? "bg-green-50 text-green-800 border border-green-100"
                       : a.status === "rejected"
-                      ? "bg-red-100 text-red-800"
-                      : "bg-yellow-100 text-yellow-800"
+                      ? "bg-red-50 text-red-800 border border-red-100"
+                      : "bg-yellow-50 text-yellow-800 border border-yellow-100"
                   }`}
-                >
-                  {a.status}
-                </span>
+                  >
+                    <span className="capitalize">{a.status}</span>
+                  </span>
+                  <span className="text-xs text-gray-400">Received: {new Date(a.createdAt).toLocaleDateString()}</span>
+                </div>
               </div>
 
               {a.proposalText && (
                 <div className="mb-3">
-                  <p className="text-sm font-semibold text-gray-700 mb-1">Proposal:</p>
-                  <p className="text-gray-700 bg-gray-50 p-2 rounded">{a.proposalText}</p>
+                  <p className="text-sm font-semibold text-ff-accent-dark mb-2">Proposal</p>
+                  <div className="bg-ff-bg p-3 rounded text-sm text-ff-accent-dark">{a.proposalText}</div>
                 </div>
               )}
 
-              <div className="flex justify-between items-center mb-2">
-                <div>
-                  <p className="text-gray-600">
-                    <strong>Bid Amount:</strong> ${a.bidAmount || "N/A"}
-                  </p>
-                  <p className="text-gray-600">
-                    <strong>Project Status:</strong> {a.projectId?.status || "N/A"}
-                  </p>
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+                <div className="text-sm text-ff-accent-dark">
+                  <p><strong>Bid:</strong> <span className="font-medium">${a.bidAmount || "N/A"}</span></p>
+                  <p className="mt-1"><strong>Project status:</strong> <span className="font-medium capitalize">{a.projectId?.status || "N/A"}</span></p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {a.status === "pending" && (
+                    <>
+                      <button
+                        onClick={() => handleAccept(a._id)}
+                        disabled={processingId === a._id}
+                        className="px-4 py-2 bg-ff-accent text-white rounded hover:opacity-95 disabled:bg-gray-300 font-medium"
+                        aria-label={`Accept application from ${a.freelancerId?.name || 'freelancer'}`}
+                      >
+                        {processingId === a._id ? "Processing..." : "Accept"}
+                      </button>
+                      <button
+                        onClick={() => handleReject(a._id)}
+                        disabled={processingId === a._id}
+                        className="px-4 py-2 bg-white border border-gray-200 text-ff-accent-dark rounded hover:shadow disabled:bg-gray-100 font-medium"
+                        aria-label={`Reject application from ${a.freelancerId?.name || 'freelancer'}`}
+                      >
+                        {processingId === a._id ? "Processing..." : "Reject"}
+                      </button>
+                    </>
+                  )}
+
+                  {a.status === "accepted" && (
+                    <button
+                      onClick={() => {
+                        const projectId = a.projectId?._id || a.projectId;
+                        if (projectId) navigate(`/chat/${projectId}`);
+                      }}
+                      className="px-4 py-2 bg-ff-accent-dark text-white rounded hover:opacity-90 font-medium"
+                      aria-label={`Chat with ${a.freelancerId?.name || 'freelancer'}`}
+                    >
+                      Chat with Freelancer
+                    </button>
+                  )}
                 </div>
               </div>
-
-              {a.status === "pending" && (
-                <div className="flex gap-2 mt-3">
-                  <button
-                    onClick={() => handleAccept(a._id)}
-                    disabled={processingId === a._id}
-                    className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:bg-gray-400 font-medium"
-                  >
-                    {processingId === a._id ? "Processing..." : "Accept"}
-                  </button>
-                  <button
-                    onClick={() => handleReject(a._id)}
-                    disabled={processingId === a._id}
-                    className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:bg-gray-400 font-medium"
-                  >
-                    {processingId === a._id ? "Processing..." : "Reject"}
-                  </button>
-                </div>
-              )}
-              {a.status === "accepted" && (
-                <div className="flex gap-2 mt-3">
-                  <button
-                    onClick={() => {
-                      const projectId = a.projectId?._id || a.projectId;
-                      if (projectId) navigate(`/chat/${projectId}`);
-                    }}
-                    className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 font-medium"
-                  >
-                    Chat with Freelancer
-                  </button>
-                </div>
-              )}
-
-              <p className="text-xs text-gray-400 mt-2">
-                Received: {new Date(a.createdAt).toLocaleDateString()}
-              </p>
-            </div>
+            </article>
           ))}
         </div>
       ) : (
-        <p className="text-gray-500">No applications received yet.</p>
+        <p className="text-ff-accent-dark/70">No applications received yet.</p>
       )}
     </div>
   );

@@ -43,3 +43,28 @@ export const loginUser = async (userData) => {
 
 export const getTokenForRole = (role) =>
   localStorage.getItem(`${role}_token`) || localStorage.getItem("token");
+
+export const clearAuthStorage = () => {
+  ["token", "role", "user", "client_token", "freelancer_token", "client_user", "freelancer_user"].forEach((k) => localStorage.removeItem(k));
+};
+
+export const logoutUser = async (opts = {}) => {
+  const token = opts.token || localStorage.getItem("token");
+  try {
+    // best-effort call to backend logout endpoint
+    await fetch(`${API_URL}/logout`, {
+      method: "POST",
+      headers: {
+        Authorization: token ? `Bearer ${token}` : "",
+      },
+    });
+  } catch (err) {
+    // ignore network errors; we'll still clear local state
+    console.error("logoutUser API error:", err);
+  }
+
+  // Clear any auth-related storage keys on the client
+  clearAuthStorage();
+
+  return { success: true };
+};

@@ -33,7 +33,7 @@ const DashboardLayout = ({ tabs, fetchData }) => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Navbar */}
-      <nav className="bg-white shadow-md">
+      <nav className="bg-ff-bg shadow-md">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex space-x-1">
             {Object.entries(tabs).map(([key, tab]) => (
@@ -42,7 +42,7 @@ const DashboardLayout = ({ tabs, fetchData }) => {
                 onClick={() => setActiveTab(key)}
                 className={`px-6 py-4 font-medium transition-colors ${
                   activeTab === key
-                    ? "text-blue-600 border-b-2 border-blue-600"
+                    ? "text-ff-accent border-b-2 border-ff-accent"
                     : "text-gray-600 hover:text-gray-900"
                 }`}
               >
@@ -55,11 +55,13 @@ const DashboardLayout = ({ tabs, fetchData }) => {
 
       {/* Content */}
       <div className="p-6">
-        {loading ? (
-          <p>Loading...</p>
-        ) : (
-          tabs[activeTab] && tabs[activeTab].render(data)
-        )}
+        <div className="max-w-7xl mx-auto px-4">
+          {loading ? (
+            <p>Loading...</p>
+          ) : (
+            tabs[activeTab] && tabs[activeTab].render(data)
+          )}
+        </div>
       </div>
     </div>
   );

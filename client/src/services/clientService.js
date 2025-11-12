@@ -1,10 +1,16 @@
+import { clearAuthStorage } from "@/services/authService";
+
 const API_URL = "http://localhost:3000/api/client";
 
-// ✅ Always use client_token
+// Use unified `token` with legacy fallbacks for backward compatibility
 const getAuthHeaders = () => {
-  const token = localStorage.getItem("client_token");
+  const token =
+    localStorage.getItem("token") ||
+    localStorage.getItem("client_token") ||
+    localStorage.getItem("freelancer_token");
+
   if (!token) {
-    throw new Error("No client token found — please log in again.");
+    throw new Error("No auth token found (expected 'token' or 'client_token')");
   }
 
   return {
@@ -16,17 +22,23 @@ const getAuthHeaders = () => {
 // ✅ Fetch client summary (automatically detects logged-in client)
 export const getClientSummary = async () => {
   try {
-    const clientUser = JSON.parse(localStorage.getItem("client_user"));
-    if (!clientUser || !clientUser.id) {
+    // Prefer unified `user` object, fall back to `client_user` for legacy
+    const storedUser = JSON.parse(localStorage.getItem("user") || localStorage.getItem("client_user") || "null");
+    if (!storedUser || !storedUser.id) {
       throw new Error("Client user not found in localStorage");
     }
 
-    const response = await fetch(`${API_URL}/summary/${clientUser.id}`, {
+    const response = await fetch(`${API_URL}/summary/${storedUser.id}`, {
       method: "GET",
       headers: getAuthHeaders(),
     });
 
     if (!response.ok) {
+      if (response.status === 401) {
+        // token invalid or expired — clear client-side auth so UI can redirect/login
+        clearAuthStorage();
+        throw new Error("Invalid token");
+      }
       const errorData = await response.json();
       throw new Error(errorData.message || "Failed to fetch summary");
     }
@@ -47,6 +59,10 @@ export const getClientProjects = async () => {
     });
 
     if (!response.ok) {
+      if (response.status === 401) {
+        clearAuthStorage();
+        throw new Error("Invalid token");
+      }
       const errorData = await response.json();
       throw new Error(errorData.message || "Failed to fetch projects");
     }
@@ -67,6 +83,10 @@ export const getClientApplications = async () => {
     });
 
     if (!response.ok) {
+      if (response.status === 401) {
+        clearAuthStorage();
+        throw new Error("Invalid token");
+      }
       const errorData = await response.json();
       throw new Error(errorData.message || "Failed to fetch applications");
     }

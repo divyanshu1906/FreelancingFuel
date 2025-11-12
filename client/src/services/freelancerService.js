@@ -1,8 +1,17 @@
 const API_URL = "http://localhost:3000/api/freelancer";
 
 const getAuthHeaders = () => {
-  const token = localStorage.getItem("freelancer_token");
-  if (!token) throw new Error("No freelancer token found");
+  // prefer unified token but fall back to legacy role-specific tokens
+  const token =
+    localStorage.getItem("token") ||
+    localStorage.getItem("freelancer_token") ||
+    localStorage.getItem("client_token");
+
+  if (!token) {
+    // let callers decide how to handle missing auth; throw a clear error
+    throw new Error("No auth token found (expected 'token' or 'freelancer_token')");
+  }
+
   return {
     "Content-Type": "application/json",
     Authorization: `Bearer ${token}`,

@@ -1,1 +1,24 @@
 @import "tailwindcss";
+
+/* Theme variables for FreelancingFuel */
+:root {
+	--ff-bg: #ffffff;
+	--ff-accent: #1ea896;
+	--ff-accent-dark: #065143;
+	--ff-text: #065143;
+}
+
+/* Utility classes that use the theme variables. These exist alongside Tailwind
+	 to make the custom palette available without changing every Tailwind class. */
+.bg-ff-bg { background-color: var(--ff-bg) !important; }
+.bg-ff-accent { background-color: var(--ff-accent) !important; }
+.bg-ff-accent-dark { background-color: var(--ff-accent-dark) !important; }
+.text-ff-accent { color: var(--ff-accent) !important; }
+.text-ff-accent-dark { color: var(--ff-accent-dark) !important; }
+.ring-ff-accent:focus { box-shadow: 0 0 0 3px rgba(30,168,150,0.25); }
+
+/* Example gradient util using the variables (used where Tailwind arbitrary
+	 classes were previously used). Use class `bg-ff-gradient` to apply. */
+.bg-ff-gradient {
+	background: linear-gradient(135deg, var(--ff-accent) 0%, var(--ff-bg) 50%, var(--ff-accent-dark) 100%);
+}
