@@ -116,7 +116,7 @@ const UpdateProject = () => {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => navigate("/client/dashboard")}
-                className="px-4 py-2 bg-ff-accent text-white border border border-gray-200 rounded hover:shadow transition"
+                className="px-4 py-2 bg-ff-accent text-white border border-gray-200 rounded hover:shadow transition"
               >
                 Back to Dashboard
               </button>
