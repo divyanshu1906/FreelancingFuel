@@ -21,7 +21,7 @@ const Home = () => {
       <div className="bg-ff-bg rounded-lg p-6 shadow-md">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="text-center mx-auto">
-            <h1 className="text-2xl font-bold">Welcome back 👋</h1>
+            <h1 className="text-2xl font-bold">Welcome back Satyam 👋</h1>
             <p className="mt-1 text-sm text-ff-accent-dark">Manage your projects, chat with freelancers, and review applications.</p>
           </div>
 
