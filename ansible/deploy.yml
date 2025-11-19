@@ -2,40 +2,45 @@
 - name: Deploy FreelancingFuel app with Docker Compose
   hosts: appservers
   become: true
+
   vars:
     repo_url: "https://github.com/divyanshu1906/FreelancingFuel.git"
     project_dir: "/opt/freelancingfuel"
     compose_file: "{{ project_dir }}/docker-compose.yml"
-    docker_packages:
-      - ca-certificates
-      - curl
-      - gnupg
-      - lsb-release
+
   tasks:
-    - name: Ensure apt cache is up to date
+    # ---------------------------
+    # Install required packages
+    # ---------------------------
+    - name: Update apt cache
       apt:
         update_cache: yes
       when: ansible_os_family == 'Debian'
 
-    - name: Install prerequisites for Docker (Debian/Ubuntu)
+    - name: Install required packages
       apt:
-        name: "{{ docker_packages }}"
+        name:
+          - git
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
         state: present
       when: ansible_os_family == 'Debian'
 
-    - name: Add Docker official GPG key
-      ansible.builtin.apt_key:
+    # ---------------------------
+    # Install Docker
+    # ---------------------------
+    - name: Add Docker GPG key
+      apt_key:
         url: https://download.docker.com/linux/ubuntu/gpg
         state: present
-      when: ansible_os_family == 'Debian'
 
-    - name: Add Docker apt repository
-      ansible.builtin.apt_repository:
+    - name: Add Docker repo
+      apt_repository:
         repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_lsb.codename }} stable"
-        state: present
-      when: ansible_os_family == 'Debian'
 
-    - name: Install Docker Engine and Compose plugin
+    - name: Install Docker engine & compose
       apt:
         name:
           - docker-ce
@@ -44,27 +49,20 @@
           - docker-compose-plugin
         state: present
         update_cache: yes
-      when: ansible_os_family == 'Debian'
 
-    - name: Ensure docker service is running
+    - name: Ensure Docker service is running
       service:
         name: docker
         state: started
         enabled: yes
 
-    - name: Install git
-      apt:
-        name: git
-        state: present
-      when: ansible_os_family == 'Debian'
-
+    # ---------------------------
+    # Fetch latest code
+    # ---------------------------
     - name: Create project directory
       file:
         path: "{{ project_dir }}"
         state: directory
-        owner: root
-        group: root
-        mode: '0755'
 
     - name: Clone or update repository
       git:
@@ -74,22 +72,41 @@
         force: yes
       register: git_result
 
-    - name: Pull backend and client images (if using remote registry)
-      command: docker compose -f {{ compose_file }} pull
+    # ---------------------------
+    # Stop running containers
+    # ---------------------------
+    - name: Stop existing containers
+      command: docker compose -f {{ compose_file }} down
       args:
-        warn: false
-      when: git_result.changed or true
-      register: pull_result
-      failed_when: false
+        chdir: "{{ project_dir }}"
+      ignore_errors: yes
 
-    - name: Start/Restart stack with docker compose (rebuild images)
+    # ---------------------------
+    # Clean old images (optional but recommended)
+    # ---------------------------
+    - name: Remove old backend & client images
+      shell: |
+        images=$(docker images --format '{{ "{{.Repository}}" }}:{{ "{{.Tag}}" }}' | grep 'freelancingfuel-' || true)
+        if [ ! -z "$images" ]; then
+          docker rmi -f $images || true
+        fi
+      ignore_errors: yes
+
+    # ---------------------------
+    # Rebuild images + start containers
+    # ---------------------------
+    - name: Rebuild & start new containers
       command: docker compose -f {{ compose_file }} up -d --build --remove-orphans
       args:
         chdir: "{{ project_dir }}"
       register: compose_up
 
-    - name: Show compose output
-      debug:
-        var: compose_up.stdout_lines
+    # ---------------------------
+    # Debug output
+    # ---------------------------
+    - name: Show Docker status
+      command: docker ps
+      register: docker_ps
 
-  handlers: [] 
+    - debug:
+        var: docker_ps.stdout
