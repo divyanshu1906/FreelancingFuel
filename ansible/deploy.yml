@@ -82,8 +82,8 @@
       register: pull_result
       failed_when: false
 
-    - name: Start/Restart stack with docker compose
-      command: docker compose -f {{ compose_file }} up -d --remove-orphans
+    - name: Start/Restart stack with docker compose (rebuild images)
+      command: docker compose -f {{ compose_file }} up -d --build --remove-orphans
       args:
         chdir: "{{ project_dir }}"
       register: compose_up
@@ -92,4 +92,4 @@
       debug:
         var: compose_up.stdout_lines
 
-  handlers: []
+  handlers: [] 
